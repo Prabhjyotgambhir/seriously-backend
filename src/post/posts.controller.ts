@@ -1,35 +1,36 @@
-import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UsePipes, ValidationPipe, ParseIntPipe } from '@nestjs/common';
 import { PostService } from './posts.service';
-import { Posts } from './posts.model';
-import { CreatePostDto } from 'src/dto/create-post.dto';
-import { UpdatePostDto } from 'src/dto/update-post.dto';
+import { CreatePostDto } from 'src/post/dto/create-post.dto';
+import { UpdatePostDto } from 'src/post/dto/update-post.dto';
+import { Posts } from './posts.entity';
 
 @Controller('posts')
 export class PostController {
     constructor(private postService: PostService) {}
 
     @Get()
-    getAllPosts(): Posts[] {
+    getAllPosts(): Promise<Posts[]> {
         return this.postService.getAllPosts();
     }
 
     @Post()
-    createPost(@Body() createPostDto: CreatePostDto): Posts {
+    @UsePipes(ValidationPipe)
+    createPost(@Body() createPostDto: CreatePostDto): Promise<Posts> {
         return this.postService.createPost(createPostDto);
     }
 
     @Get('/:id') 
-    getPostById(@Param('id') id: string): Posts {
+    getPostById(@Param('id', ParseIntPipe) id: number): Promise<Posts> {
         return this.postService.getPostById(id);
     }
 
     @Delete('/:id') 
-    deletePostById(@Param('id') id: string): boolean {
+    deletePostById(@Param('id', ParseIntPipe) id: number): Promise<any> {
         return this.postService.deletePostById(id);
     }
 
     @Put('/:id') 
-    updatePostById(@Param('id') id: string, @Body() UpdatePostDto) {
+    updatePostById(@Param('id', ParseIntPipe) id: number, @Body() UpdatePostDto) {
         return this.postService.updatePostById(id, UpdatePostDto);
     }
 }

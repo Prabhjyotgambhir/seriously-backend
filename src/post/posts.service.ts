@@ -1,51 +1,46 @@
-import { Injectable } from '@nestjs/common';
-import { Posts} from './posts.model';
-import * as uuid from 'uuid/v1';
-import { CreatePostDto } from 'src/dto/create-post.dto';
-import { UpdatePostDto } from 'src/dto/update-post.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreatePostDto } from 'src/post/dto/create-post.dto';
+import { UpdatePostDto } from 'src/post/dto/update-post.dto';
+import { PostsRepository } from './posts.repository';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Posts } from './posts.entity';
 
 @Injectable()
 export class PostService {
-    private posts: Posts[] = [];
 
-    public getAllPosts(): Posts[] {
-        return this.posts;
+    constructor(@InjectRepository(PostsRepository) private postsRepository: PostsRepository) {}
+
+    public async getAllPosts(): Promise<Posts[]> {
+        const posts = await this.postsRepository.find();
+        return posts;
     }
 
-    public getPostById(id: string): Posts {
-        return this.posts.find(post => post.id === id);
-    }
-
-    public createPost(createPostDto: CreatePostDto): Posts {
-        const { title, content} = createPostDto;
-        const post: Posts  = {
-            id: uuid(),
-            title,
-            content,
+    public async getPostById(id: number): Promise<Posts> {
+        const post = await this.postsRepository.findOne(id);
+        if (!post) {
+            throw new NotFoundException(`Post with ${id} not found `);
         }
-
-        this.posts.push(post);
         return post;
     }
 
-    public deletePostById(id: string) {
-        const post = this.posts.findIndex(post => post.id === id);
-        this.posts.splice(post, 1);
-        return true;
+    public async createPost(createPostDto: CreatePostDto): Promise<Posts> {
+        return this.postsRepository.createPost(createPostDto);
     }
 
-    public updatePostById(id: string, updatePostDto: UpdatePostDto): Posts {
-        this.posts.forEach((post) => {
-            if (post.id === id) {
-                if (updatePostDto.title) {
-                    post.title = updatePostDto.title;
-                }
-                if (updatePostDto.content) {
-                    post.content = updatePostDto.content;
-                }
-                return post;
-            }
-        })
-        return;
+    public async deletePostById(id: number): Promise<any> {
+        const post = await this.getPostById(id);
+        const result = await this.postsRepository.delete(post.id);
+        return result;
+    }
+
+    public async updatePostById(id: number, updatePostDto: UpdatePostDto): Promise<Posts> {
+        const post = await this.getPostById(id);
+        if (updatePostDto.title) {
+            post.title = updatePostDto.title;
+        }
+        if (updatePostDto.content) {
+            post.content = updatePostDto.content;
+        }
+        return post;
     }
 }
