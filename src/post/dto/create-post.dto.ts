@@ -6,4 +6,7 @@ export class CreatePostDto {
     
     @IsNotEmpty()
     content: string;
+
+    @IsNotEmpty()
+    categoryId: number;
 }
