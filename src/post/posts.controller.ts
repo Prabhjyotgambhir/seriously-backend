@@ -8,7 +8,6 @@ import { User } from 'src/auth/user.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
 
 @Controller('posts')
-@UseGuards(AuthGuard())
 export class PostController {
     private logger = new Logger('Posts');
     constructor(private postService: PostService) {}
@@ -21,7 +20,8 @@ export class PostController {
 
     @Post()
     @UsePipes(ValidationPipe)
-    createPost(@Body() createPostDto: CreatePostDto, @GetUser() user: User): Promise<Posts> {
+    @UseGuards(AuthGuard())
+    createPost(@Body() createPostDto: CreatePostDto, @GetUser() user: User): Promise<any> {
         this.logger.verbose(`Creating a post by user ${user.email}`)
         return this.postService.createPost(createPostDto, user);
     }

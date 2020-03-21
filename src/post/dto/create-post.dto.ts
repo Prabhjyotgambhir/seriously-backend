@@ -9,4 +9,9 @@ export class CreatePostDto {
 
     @IsNotEmpty()
     categoryId: number;
+
+    imagePath: string;
+    
+    @IsNotEmpty()
+    image: string;
 }

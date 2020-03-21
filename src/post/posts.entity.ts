@@ -20,6 +20,12 @@ export class Posts extends BaseEntity {
     @Column()
     userId: number;
 
+    @Column()
+    image: string;
+
+    @Column()
+    imagePath: string;
+
     @ManyToOne(type => User, user => user.posts, {eager: false})
     user: User;
 
