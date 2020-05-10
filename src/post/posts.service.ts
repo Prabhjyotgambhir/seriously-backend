@@ -21,10 +21,12 @@ export class PostService {
             take: limit,
             skip: page
         });
-        return {
-            posts: posts,
-            total: total
-        }
+        return posts;
+    }
+
+    public async getBanner(): Promise<any> {
+        const banner = await this.postsRepository.find();
+        return banner;
     }
 
     public async getCovidData(): Promise<any> {
