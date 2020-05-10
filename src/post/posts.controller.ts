@@ -1,7 +1,6 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UsePipes, ValidationPipe, ParseIntPipe, UseGuards, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UsePipes, ValidationPipe, ParseIntPipe, UseGuards, Logger, Request } from '@nestjs/common';
 import { PostService } from './posts.service';
 import { CreatePostDto } from 'src/post/dto/create-post.dto';
-import { UpdatePostDto } from 'src/post/dto/update-post.dto';
 import { Posts } from './posts.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/auth/user.entity';
@@ -13,9 +12,17 @@ export class PostController {
     constructor(private postService: PostService) {}
 
     @Get()
-    getAllPosts(): Promise<Posts[]> {
+    getAllPosts(@Request() request): Promise<Posts[]> {
         this.logger.verbose(`Fetching all the posts`);
-        return this.postService.getAllPosts();
+        const limit = request.query.hasOwnProperty('limit') ? request.query.limit : 10;
+        const page = request.query.hasOwnProperty('page') ? request.query.page : 0;
+        return this.postService.getAllPosts(limit, page);
+    }
+
+    @Get('/covid')
+    getCovidData(): Promise<any> {
+        this.logger.verbose(`Fetching all the covid data`);
+        return this.postService.getCovidData();
     }
 
     @Post()
@@ -40,4 +47,5 @@ export class PostController {
     updatePostById(@Param('id', ParseIntPipe) id: number, @Body() UpdatePostDto) {
         return this.postService.updatePostById(id, UpdatePostDto);
     }
+
 }

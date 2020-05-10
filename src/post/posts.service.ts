@@ -6,16 +6,40 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Posts } from './posts.entity';
 import { User } from 'src/auth/user.entity';
 import { S3Service } from 'src/shared/s3/s3.service';
+import { ConfigService } from '@nestjs/config';
+import { get } from 'request-promise';
 
 @Injectable()
 export class PostService {
     public logger = new Logger('posts');
 
-    constructor(@InjectRepository(PostsRepository) private postsRepository: PostsRepository, private s3Service: S3Service) {}
+    constructor(@InjectRepository(PostsRepository) private postsRepository: PostsRepository, private s3Service: S3Service,
+    private configService: ConfigService) {}
 
-    public async getAllPosts(): Promise<Posts[]> {
-        const posts = await this.postsRepository.find();
-        return posts;
+    public async getAllPosts(limit: number, page: number): Promise<any> {
+        const [posts, total] = await this.postsRepository.findAndCount({
+            take: limit,
+            skip: page
+        });
+        return {
+            posts: posts,
+            total: total
+        }
+    }
+
+    public async getCovidData(): Promise<any> {
+        const covidUrl = 'https://covid-19-coronavirus-statistics.p.rapidapi.com/v1/stats';
+        const options = {
+            uri: covidUrl,
+            headers: {
+                'x-rapidapi-key': this.configService.get<string>('RAPID_KEY'),
+                'x-rapidapi-host': this.configService.get<string>('RAPID_HOST')
+            },
+            json: true // Automatically parses the JSON string in the response
+        };
+        
+        const result = await get(options);
+        return result;
     }
 
     public async getPostById(id: number): Promise<Posts> {
@@ -73,4 +97,5 @@ export class PostService {
         console.log(val, "VAL");
         return { name: name, val: val};
     }
+
 }
