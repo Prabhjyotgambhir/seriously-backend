@@ -62,6 +62,7 @@ export class PostService {
         post.imagePath = data.val.path; 
         post.image = data.name;
         post.userId = user.id;
+        post.createdAt = new Date();
         try {
             await post.save();
         } catch(error) {

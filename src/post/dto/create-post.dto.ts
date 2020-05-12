@@ -14,4 +14,6 @@ export class CreatePostDto {
     
     @IsNotEmpty()
     image: string;
+
+    createdAt: Date;
 }
