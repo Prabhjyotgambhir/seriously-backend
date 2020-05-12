@@ -19,6 +19,14 @@ export class PostController {
         return this.postService.getAllPosts(limit, page);
     }
 
+    @Get('/popular')
+    getPopularPosts(@Request() request): Promise<Posts[]> {
+        this.logger.verbose(`Fetching popular posts`);
+        const limit = request.query.hasOwnProperty('limit') ? request.query.limit : 10;
+        const page = request.query.hasOwnProperty('page') ? request.query.page : 0;
+        return this.postService.getPopularPosts(limit, page);
+    }
+
     @Get('/covid')
     getCovidData(): Promise<any> {
         this.logger.verbose(`Fetching all the covid data`);

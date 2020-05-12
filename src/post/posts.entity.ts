@@ -29,6 +29,9 @@ export class Posts extends BaseEntity {
     @Column()
     createdAt: Date;
 
+    @Column()
+    popular: boolean;
+
     @ManyToOne(type => User, user => user.posts, {eager: false})
     user: User;
 

@@ -24,6 +24,18 @@ export class PostService {
         return posts;
     }
 
+    public async getPopularPosts(limit: number, page: number): Promise<any> {
+        const [posts, total] = await this.postsRepository.findAndCount({
+            take: limit,
+            skip: page,
+            where: {
+                popular: true
+            }
+        });
+        console.log(posts);
+        return posts;
+    }
+
     public async getBanner(): Promise<any> {
         const banner = await this.postsRepository.find();
         return banner;
@@ -53,7 +65,7 @@ export class PostService {
     }
 
     public async createPost(createPostDto: CreatePostDto, user: User): Promise<any> {
-        const { title, content, categoryId, image} = createPostDto;
+        const { title, content, categoryId, image, popular} = createPostDto;
         const post = new Posts();
         const data = await this.saveImage(image);
         post.title = title;
@@ -63,6 +75,8 @@ export class PostService {
         post.image = data.name;
         post.userId = user.id;
         post.createdAt = new Date();
+        this.logger.error(`post ${popular}`);
+        post.popular = popular;
         try {
             await post.save();
         } catch(error) {

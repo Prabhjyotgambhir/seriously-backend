@@ -15,5 +15,8 @@ export class CreatePostDto {
     @IsNotEmpty()
     image: string;
 
+    @IsNotEmpty()
+    popular: boolean;
+
     createdAt: Date;
 }
