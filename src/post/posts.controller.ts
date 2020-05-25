@@ -5,6 +5,7 @@ import { Posts } from './posts.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/auth/user.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
+import { CreateEnquiryDto } from './dto/create-enquiry.dto';
 
 @Controller('posts')
 export class PostController {
@@ -27,6 +28,12 @@ export class PostController {
         return this.postService.getPopularPosts(limit, page);
     }
 
+    @Get('/latest')
+    getLatestPost(): Promise<Posts> {
+        this.logger.verbose(`Fetching Latest post`);
+    return this.postService.getLatestPost();
+    }
+
     @Get('/covid')
     getCovidData(): Promise<any> {
         this.logger.verbose(`Fetching all the covid data`);
@@ -39,6 +46,14 @@ export class PostController {
     createPost(@Body() createPostDto: CreatePostDto, @GetUser() user: User): Promise<any> {
         this.logger.verbose(`Creating a post by user ${user.email}`)
         return this.postService.createPost(createPostDto, user);
+    }
+
+    
+    @Post('/enquiry')
+    @UsePipes(ValidationPipe)
+    createEnquiry(@Body() createEnquiryDto: CreateEnquiryDto): Promise<any> {
+        this.logger.verbose(`Receiving an email by ${createEnquiryDto.email}`)
+        return this.postService.createEnquiry(createEnquiryDto);
     }
 
     @Get('/:id') 
